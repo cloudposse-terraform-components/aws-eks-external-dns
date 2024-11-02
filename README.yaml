@@ -1,70 +1,102 @@
-name: "template"
-
+name: "aws-eks-external-dns"
 # Canonical GitHub repo
-github_repo: "cloudposse-terraform-components/template"
-
+github_repo: "cloudposse-terraform-components/aws-eks-external-dns"
 # Short description of this project
 description: |-
-  Description of this component
+  This component creates a Helm deployment for [external-dns](https://github.com/bitnami/bitnami-docker-external-dns) on a
+  Kubernetes cluster. [external-dns](https://github.com/bitnami/bitnami-docker-external-dns) is a Kubernetes addon that
+  configures public DNS servers with information about exposed Kubernetes services to make them discoverable.
 
-usage: |-
-  **Stack Level**: Regional or Test47
+  ## Usage
 
-  Here's an example snippet for how to use this component.
-  
+  **Stack Level**: Regional
+
+  Once the catalog is created, the file can be imported as follows.
+
+  ```yaml
+  import:
+    - catalog/eks/external-dns
+    ...
+  ```
+
+  The default catalog values `e.g. stacks/catalog/eks/external-dns.yaml`
+
   ```yaml
   components:
     terraform:
-      foo:
+      external-dns:
         vars:
           enabled: true
+          name: external-dns
+          chart: external-dns
+          chart_repository: https://charts.bitnami.com/bitnami
+          chart_version: "6.33.0"
+          create_namespace: true
+          kubernetes_namespace: external-dns
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          # Set this to a unique value to avoid conflicts with other external-dns instances managing the same zones.
+          # For example, when using blue-green deployment pattern to update EKS cluster.
+          txt_prefix: ""
+          # You can use `chart_values` to set any other chart options. Treat `chart_values` as the root of the doc.
+          # See documentation for latest chart version and list of chart_values: https://artifacthub.io/packages/helm/bitnami/external-dns
+          #
+          # # For example
+          # ---
+          # chart_values:
+          #   aws:
+          #     batchChangeSize: 1000
+          chart_values: {}
+          # Extra hosted zones to lookup and support by component name
+          dns_components:
+            - component: dns-primary
+            - component: dns-delegated
+            - component: dns-delegated/abc
+            - component: dns-delegated/123
+              environment: "gbl" # Optional (default "gbl")
   ```
 
+  <!-- prettier-ignore-start -->
+
+  <!-- prettier-ignore-end -->
+
+  ## References
+
+  - [external-dns](https://artifacthub.io/packages/helm/bitnami/external-dns) - Helm Chart
+  - [ExternalDNS](https://github.com/bitnami/bitnami-docker-external-dns) - ExternalDNS addon
 include:
   - "docs/terraform.md"
-
 tags:
-  - terraform
-  - terraform-modules
-  - aws
-  - components
-  - terraform-components
-  - root
-  - geodesic
-  - reference-implementation
-  - reference-architecture
-
+  - component/eks/external-dns
+  - layer/eks
+  - provider/aws
+  - provider/helm
 # Categories of this project
 categories:
-  - terraform-modules/root
-  - terraform-components
-
+  - component/eks/external-dns
+  - layer/eks
+  - provider/aws
+  - provider/helm
 # License of this project
 license: "APACHE2"
-
 # Badges to display
 badges:
-  - name: "Latest Release"
-    image: "https://img.shields.io/github/release/cloudposse-terraform-components/template.svg?style=for-the-badge"
-    url: "https://github.com/cloudposse-terraform-components/template/releases/latest"
-  - name: "Slack Community"
-    image: "https://slack.cloudposse.com/for-the-badge.svg"
-    url: "https://slack.cloudposse.com"
-
-references:
-  - name: "Cloud Posse Documentation"
-    description: "Complete documentation for the Cloud Posse solution"
-    url: "https://docs.cloudposse.com"
-  - name: "Reference Architectures"
-    description: "Launch effortlessly with our turnkey reference architectures, built either by your team or ours."
-    url: "https://cloudposse.com/"
-
+  - name: Latest Release
+    image: https://img.shields.io/github/release/cloudposse-terraform-components/aws-eks-external-dns.svg?style=for-the-badge
+    url: https://github.com/cloudposse-terraform-components/aws-eks-external-dns/releases/latest
+  - name: Slack Community
+    image: https://slack.cloudposse.com/for-the-badge.svg
+    url: https://slack.cloudposse.com
 related:
-- name: "Cloud Posse Terraform Modules"
-  description: Our collection of reusable Terraform modules used by our reference architectures.
-  url: "https://docs.cloudposse.com/modules/"
-- name: "Atmos"
-  description: "Atmos is like docker-compose but for your infrastructure"
-  url: "https://atmos.tools"
-
+  - name: "Cloud Posse Terraform Modules"
+    description: Our collection of reusable Terraform modules used by our reference architectures.
+    url: "https://docs.cloudposse.com/modules/"
+  - name: "Atmos"
+    description: "Atmos is like docker-compose but for your infrastructure"
+    url: "https://atmos.tools"
 contributors: [] # If included generates contribs
