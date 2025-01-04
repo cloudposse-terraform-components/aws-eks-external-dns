@@ -5,5 +5,3 @@ repository:
   description: This component creates a Helm deployment for external-dns on a Kubernetes cluster
   homepage: https://cloudposse.com/accelerate
   topics: terraform, terraform-component
-
-
