@@ -6,19 +6,23 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	helper "github.com/cloudposse/test-helpers/pkg/atmos/component-helper"
-	awsHelper "github.com/cloudposse/test-helpers/pkg/aws"
 	"github.com/cloudposse/test-helpers/pkg/atmos"
 	"github.com/cloudposse/test-helpers/pkg/helm"
-	"github.com/gruntwork-io/terratest/modules/aws"
-	"github.com/stretchr/testify/assert"
+	awsHelper "github.com/cloudposse/test-helpers/pkg/aws"
+	helper "github.com/cloudposse/test-helpers/pkg/atmos/component-helper"
+	awsTerratest "github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
 
+	"github.com/stretchr/testify/assert"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/route53"
+	"github.com/aws/aws-sdk-go-v2/service/route53/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/client-go/dynamic"
 
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/tools/cache"
 )
@@ -179,8 +183,58 @@ func (s *ComponentSuite) TestBasic() {
 			assert.Fail(s.T(), msg)
 	}
 
-	delegatedNSRecord := aws.GetRoute53Record(s.T(), defaultDNSZoneId, dnsRecordHostName, "A", awsRegion)
+	delegatedNSRecord := awsTerratest.GetRoute53Record(s.T(), defaultDNSZoneId, dnsRecordHostName, "A", awsRegion)
 	assert.Equal(s.T(), fmt.Sprintf("%s.", dnsRecordHostName), *delegatedNSRecord.Name)
+
+
+	defer func() {
+		route53Client, err := awsTerratest.NewRoute53ClientE(s.T(), awsRegion)
+		if err != nil {
+			return
+		}
+
+		o, err := route53Client.ListResourceRecordSets(context.Background(), &route53.ListResourceRecordSetsInput{
+			HostedZoneId:    &defaultDNSZoneId,
+			MaxItems:        aws.Int32(100),
+		})
+		if err != nil {
+			return
+		}
+
+		var changes []types.Change
+
+		for _, record := range o.ResourceRecordSets {
+
+			if record.Type == types.RRTypeNs || record.Type == types.RRTypeSoa {
+				continue
+			}
+			// Build a deletion change for each record
+			changes = append(changes, types.Change{
+				Action:            types.ChangeActionDelete,
+				ResourceRecordSet: &record,
+			})
+		}
+
+		if len(changes) == 0 {
+			fmt.Println("No deletable records found.")
+			return
+		}
+
+		// Prepare the change batch
+		changeBatch := &types.ChangeBatch{
+			Changes: changes,
+		}
+
+		// Call ChangeResourceRecordSets to delete the records
+		changeInput := &route53.ChangeResourceRecordSetsInput{
+			HostedZoneId: aws.String(defaultDNSZoneId),
+			ChangeBatch:  changeBatch,
+		}
+
+		_, err = route53Client.ChangeResourceRecordSets(context.Background(), changeInput)
+		assert.NoError(s.T(), err)
+
+	}()
 
 	s.DriftTest(component, stack, &inputs)
 }
