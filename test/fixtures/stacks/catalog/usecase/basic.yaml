@@ -1,0 +1,43 @@
+components:
+  terraform:
+    eks/external-dns/basic:
+      metadata:
+        component: eks/external-dns
+      vars:
+        enabled: true
+        kube_exec_auth_role_arn_enabled: false
+        dns_gbl_delegated_environment_name: ue2
+        dns_gbl_primary_environment_name: ue2
+        name: external-dns
+        chart: external-dns
+        chart_repository: https://charts.bitnami.com/bitnami
+        chart_version: "6.33.0"
+        create_namespace: true
+        kubernetes_namespace: external-dns
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        # Set this to a unique value to avoid conflicts with other external-dns instances managing the same zones.
+        # For example, when using blue-green deployment pattern to update EKS cluster.
+        txt_prefix: ""
+        # You can use `chart_values` to set any other chart options. Treat `chart_values` as the root of the doc.
+        # See documentation for latest chart version and list of chart_values: https://artifacthub.io/packages/helm/bitnami/external-dns
+        #
+        # # For example
+        # ---
+        # chart_values:
+        #   aws:
+        #     batchChangeSize: 1000
+        chart_values:
+          crd:
+            create: true
+          sources:
+            - crd
+            - service
+            - ingress
+        # Extra hosted zones to lookup and support by component name
+        dns_components: []
