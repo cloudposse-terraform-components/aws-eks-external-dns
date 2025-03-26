@@ -41,6 +41,12 @@ func (s *ComponentSuite) TestBasic() {
 	delegatedDomainName := atmos.Output(s.T(), dnsDelegatedOptions, "default_domain_name")
 	defaultDNSZoneId := atmos.Output(s.T(), dnsDelegatedOptions, "default_dns_zone_id")
 
+	defer func() {
+		if err := awsHelper.CleanDNSZoneID(s.T(), context.Background(), defaultDNSZoneId, awsRegion); err != nil {
+			fmt.Printf("Error cleaning DNS zone %s: %v\n", defaultDNSZoneId, err)
+		}
+	}()
+
 	randomID := strings.ToLower(random.UniqueId())
 
 	namespace := fmt.Sprintf("external-dns-%s", randomID)
@@ -129,7 +135,6 @@ func (s *ComponentSuite) TestBasic() {
 
 
 	stopChannel := make(chan struct{})
-
 	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			_, ok := oldObj.(*unstructured.Unstructured)
@@ -186,12 +191,6 @@ func (s *ComponentSuite) TestBasic() {
 
 	delegatedNSRecord := awsTerratest.GetRoute53Record(s.T(), defaultDNSZoneId, dnsRecordHostName, "A", awsRegion)
 	assert.Equal(s.T(), fmt.Sprintf("%s.", dnsRecordHostName), *delegatedNSRecord.Name)
-
-	defer func() {
-		if err := awsHelper.CleanDNSZoneID(s.T(), context.Background(), defaultDNSZoneId, awsRegion); err != nil {
-			fmt.Printf("Error cleaning DNS zone %s: %v\n", defaultDNSZoneId, err)
-		}
-	}()
 
 	s.DriftTest(component, stack, &inputs)
 }
