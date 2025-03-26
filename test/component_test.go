@@ -15,9 +15,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/route53"
-	"github.com/aws/aws-sdk-go-v2/service/route53/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -144,16 +141,6 @@ func (s *ComponentSuite) TestBasic() {
 				return
 			}
 
-			observedGeneration, found, err := unstructured.NestedInt64(newDNS.Object, "status", "observedGeneration")
-			if err != nil {
-				fmt.Printf("Error getting status: %v\n", err)
-				return
-			}
-			if !found {
-				fmt.Printf("Status not found\n")
-				return
-			}
-
 			name, found, err := unstructured.NestedString(newDNS.Object, "metadata", "name")
 			if err != nil {
 				fmt.Printf("Error getting name: %v\n", err)
@@ -161,6 +148,20 @@ func (s *ComponentSuite) TestBasic() {
 			}
 			if !found {
 				fmt.Printf("Name not found\n")
+				return
+			}
+			if name != dnsEndpointName {
+				fmt.Printf("DNS record is not %s\n", dnsEndpointName)
+				return
+			}
+
+			observedGeneration, found, err := unstructured.NestedInt64(newDNS.Object, "status", "observedGeneration")
+			if err != nil {
+				fmt.Printf("Error getting status: %v\n", err)
+				return
+			}
+			if !found {
+				fmt.Printf("Status not found\n")
 				return
 			}
 
@@ -186,54 +187,10 @@ func (s *ComponentSuite) TestBasic() {
 	delegatedNSRecord := awsTerratest.GetRoute53Record(s.T(), defaultDNSZoneId, dnsRecordHostName, "A", awsRegion)
 	assert.Equal(s.T(), fmt.Sprintf("%s.", dnsRecordHostName), *delegatedNSRecord.Name)
 
-
 	defer func() {
-		route53Client, err := awsTerratest.NewRoute53ClientE(s.T(), awsRegion)
-		if err != nil {
-			return
+		if err := awsHelper.CleanDNSZoneID(s.T(), context.Background(), defaultDNSZoneId, awsRegion); err != nil {
+			fmt.Printf("Error cleaning DNS zone %s: %v\n", defaultDNSZoneId, err)
 		}
-
-		o, err := route53Client.ListResourceRecordSets(context.Background(), &route53.ListResourceRecordSetsInput{
-			HostedZoneId:    &defaultDNSZoneId,
-			MaxItems:        aws.Int32(100),
-		})
-		if err != nil {
-			return
-		}
-
-		var changes []types.Change
-
-		for _, record := range o.ResourceRecordSets {
-
-			if record.Type == types.RRTypeNs || record.Type == types.RRTypeSoa {
-				continue
-			}
-			// Build a deletion change for each record
-			changes = append(changes, types.Change{
-				Action:            types.ChangeActionDelete,
-				ResourceRecordSet: &record,
-			})
-		}
-
-		if len(changes) == 0 {
-			fmt.Println("No deletable records found.")
-			return
-		}
-
-		// Prepare the change batch
-		changeBatch := &types.ChangeBatch{
-			Changes: changes,
-		}
-
-		// Call ChangeResourceRecordSets to delete the records
-		changeInput := &route53.ChangeResourceRecordSetsInput{
-			HostedZoneId: aws.String(defaultDNSZoneId),
-			ChangeBatch:  changeBatch,
-		}
-
-		_, err = route53Client.ChangeResourceRecordSets(context.Background(), changeInput)
-		assert.NoError(s.T(), err)
-
 	}()
 
 	s.DriftTest(component, stack, &inputs)

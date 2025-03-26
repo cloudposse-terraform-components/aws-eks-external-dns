@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.1
 
 require (
-	github.com/cloudposse/test-helpers v0.22.1-0.20250325083919-2452aea08a23
+	github.com/cloudposse/test-helpers v0.22.1-0.20250326115004-9e5a8774b3c1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/gruntwork-io/terratest v0.48.2
 	github.com/mattn/go-zglob v0.0.6 // indirect
