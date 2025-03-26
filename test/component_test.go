@@ -22,6 +22,10 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
+	"k8s.io/client-go/informers"
+	"sync/atomic"
+	corev1 "k8s.io/api/core/v1"
+
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/tools/cache"
@@ -35,6 +39,41 @@ func (s *ComponentSuite) TestBasic() {
 	const component = "eks/external-dns/basic"
 	const stack = "default-test"
 	const awsRegion = "us-east-2"
+
+	clusterOptions := s.GetAtmosOptions("eks/cluster", stack, nil)
+	clusrerId := atmos.Output(s.T(), clusterOptions, "eks_cluster_id")
+	cluster := awsHelper.GetEksCluster(s.T(), context.Background(), awsRegion, clusrerId)
+
+	clientset, err := awsHelper.NewK8SClientset(cluster)
+	assert.NoError(s.T(), err)
+
+	factoryCluster := informers.NewSharedInformerFactory(clientset, 0)
+	informerCluster := factoryCluster.Core().V1().Nodes().Informer()
+	stopChannelCluster := make(chan struct{})
+	var countOfWorkerNodes uint64 = 0
+
+	informerCluster.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			node := obj.(*corev1.Node)
+			fmt.Printf("Worker Node %s has joined the EKS cluster at %s\n", node.Name, node.CreationTimestamp)
+			atomic.AddUint64(&countOfWorkerNodes, 1)
+			if countOfWorkerNodes > 1 {
+				close(stopChannelCluster)
+			}
+		},
+	})
+
+	go informerCluster.Run(stopChannelCluster)
+
+	select {
+	case <-stopChannelCluster:
+		msg := "All worker nodes have joined the EKS cluster"
+		fmt.Println(msg)
+	case <-time.After(5 * time.Minute):
+		msg := "Not all worker nodes have joined the EKS cluster"
+		fmt.Println(msg)
+		assert.Fail(s.T(), msg)
+	}
 
 
 	dnsDelegatedOptions := s.GetAtmosOptions("dns-delegated", stack, nil)
@@ -70,9 +109,6 @@ func (s *ComponentSuite) TestBasic() {
 	assert.NotNil(s.T(), metadata.Values)
 	assert.Equal(s.T(), metadata.Version, "6.33.0")
 
-	clusterOptions := s.GetAtmosOptions("eks/cluster", stack, nil)
-	clusrerId := atmos.Output(s.T(), clusterOptions, "eks_cluster_id")
-	cluster := awsHelper.GetEksCluster(s.T(), context.Background(), awsRegion, clusrerId)
 
 	config, err := awsHelper.NewK8SClientConfig(cluster)
 	assert.NoError(s.T(), err)

@@ -12,6 +12,11 @@ locals {
     values(module.dns_gbl_primary.outputs.zones)[*].zone_id,
     flatten([for k, v in module.additional_dns_components : [for i, j in v.outputs.zones : j.zone_id]])
   ))
+  zone_names = compact(concat(
+    values(module.dns_gbl_delegated.outputs.zones)[*].name,
+    values(module.dns_gbl_primary.outputs.zones)[*].name,
+    flatten([for k, v in module.additional_dns_components : [for i, j in v.outputs.zones : j.name]])
+  ))
 }
 
 data "aws_partition" "current" {
@@ -99,6 +104,7 @@ module "external_dns" {
       txtOwnerId              = local.txt_owner
       txtPrefix               = local.txt_prefix
       sources                 = local.sources
+      domainFilters           = local.zone_names
     }),
     # hardcoded values
     file("${path.module}/resources/values.yaml"),
