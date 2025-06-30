@@ -55,7 +55,7 @@ spec:
 
     - component: "eks/alb-controller"
       source: github.com/cloudposse-terraform-components/aws-eks-alb-controller.git//src?ref={{.Version}}
-      version: v1.535.1
+      version: v1.537.1
       targets:
         - "components/terraform/eks/alb-controller"
       included_paths:
