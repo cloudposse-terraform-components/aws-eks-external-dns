@@ -11,7 +11,6 @@ tags:
 This component creates a Helm deployment for [external-dns](https://github.com/bitnami/bitnami-docker-external-dns) on a
 Kubernetes cluster. [external-dns](https://github.com/bitnami/bitnami-docker-external-dns) is a Kubernetes addon that
 configures public DNS servers with information about exposed Kubernetes services to make them discoverable.
-
 ## Usage
 
 **Stack Level**: Regional
@@ -67,7 +66,10 @@ components:
 ```
 
 <!-- prettier-ignore-start -->
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- prettier-ignore-end -->
+
+
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -166,12 +168,19 @@ components:
 | Name | Description |
 |------|-------------|
 | <a name="output_metadata"></a> [metadata](#output\_metadata) | Block status of the deployed release |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-<!-- prettier-ignore-end -->
+<!-- markdownlint-restore -->
+
+
 
 ## References
 
-- [external-dns](https://artifacthub.io/packages/helm/bitnami/external-dns) - Helm Chart
-- [ExternalDNS](https://github.com/bitnami/bitnami-docker-external-dns) - ExternalDNS addon
+
+- [external-dns (Artifact Hub)](https://artifacthub.io/packages/helm/bitnami/external-dns) - Helm chart for ExternalDNS by Bitnami
+
+- [ExternalDNS (Bitnami Docker)](https://github.com/bitnami/bitnami-docker-external-dns) - ExternalDNS addon container image and docs by Bitnami
+
+
+
 
 [<img src="https://cloudposse.com/logo-300x69.svg" height="32" align="right"/>](https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse-terraform-components/aws-eks-external-dns&utm_content=)
+
