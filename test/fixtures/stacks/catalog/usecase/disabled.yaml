@@ -10,8 +10,8 @@ components:
         dns_gbl_primary_environment_name: ue2
         name: external-dns
         chart: external-dns
-        chart_repository: https://charts.bitnami.com/bitnami
-        chart_version: "6.33.0"
+        chart_repository: https://kubernetes-sigs.github.io/external-dns/
+        chart_version: "1.18.0"
         create_namespace: true
         kubernetes_namespace: external-dns
         resources:
@@ -25,13 +25,15 @@ components:
         # For example, when using blue-green deployment pattern to update EKS cluster.
         txt_prefix: ""
         # You can use `chart_values` to set any other chart options. Treat `chart_values` as the root of the doc.
-        # See documentation for latest chart version and list of chart_values: https://artifacthub.io/packages/helm/bitnami/external-dns
+        # See documentation for latest chart version and list of chart_values: https://artifacthub.io/packages/helm/external-dns/external-dns
         #
         # # For example
         # ---
         # chart_values:
-        #   aws:
-        #     batchChangeSize: 1000
+        #   provider:
+        #     name: aws
+        #   extraArgs:
+        #     - --aws-batch-change-size=1000
         chart_values: {}
         # Extra hosted zones to lookup and support by component name
         dns_components: []

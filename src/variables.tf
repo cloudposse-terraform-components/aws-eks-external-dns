@@ -142,11 +142,7 @@ variable "dns_components" {
   default     = []
 }
 
-variable "publish_internal_services" {
-  type        = bool
-  description = "Allow external-dns to publish DNS records for ClusterIP services"
-  default     = true
-}
+
 
 variable "policy" {
   type        = string
