@@ -24,6 +24,7 @@ data "aws_partition" "current" {
 }
 
 module "external_dns" {
+  count   = local.enabled ? 1 : 0
   source  = "cloudposse/helm-release/aws"
   version = "0.10.1"
 
