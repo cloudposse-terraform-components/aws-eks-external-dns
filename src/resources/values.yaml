@@ -2,4 +2,5 @@
 # The official external-dns chart uses provider.name instead of the provider field
 # AWS-specific settings are configured via extraArgs
 extraArgs:
-  - --aws-evaluate-target-health=false
+  # Add AWS-specific arguments here if needed
+  # Example: --aws-batch-change-size=1000
