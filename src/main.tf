@@ -24,6 +24,7 @@ data "aws_partition" "current" {
 }
 
 module "external_dns" {
+  count   = local.enabled ? 1 : 0
   source  = "cloudposse/helm-release/aws"
   version = "0.10.1"
 
@@ -57,7 +58,7 @@ module "external_dns" {
       ]
 
       effect    = "Allow"
-      resources = formatlist("arn:${join("", data.aws_partition.current.*.partition)}:route53:::hostedzone/%s", local.zone_ids)
+      resources = formatlist("arn:${data.aws_partition.current[0].partition}:route53:::hostedzone/%s", local.zone_ids)
     },
     {
       sid = "GrantListHostedZonesListResourceRecordSets"
@@ -96,15 +97,14 @@ module "external_dns" {
     }) : "",
     # external-dns-specific values
     yamlencode({
-      aws = {
-        region = var.region
+      provider = {
+        name = "aws"
       }
-      policy                  = var.policy
-      publishInternalServices = var.publish_internal_services
-      txtOwnerId              = local.txt_owner
-      txtPrefix               = local.txt_prefix
-      sources                 = local.sources
-      domainFilters           = local.zone_names
+      policy        = var.policy
+      txtOwnerId    = local.txt_owner
+      txtPrefix     = local.txt_prefix
+      sources       = local.sources
+      domainFilters = local.zone_names
     }),
     # hardcoded values
     file("${path.module}/resources/values.yaml"),

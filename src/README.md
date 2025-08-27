@@ -8,8 +8,8 @@ tags:
 
 # Component: `eks-external-dns`
 
-This component creates a Helm deployment for [external-dns](https://github.com/bitnami/bitnami-docker-external-dns) on a
-Kubernetes cluster. [external-dns](https://github.com/bitnami/bitnami-docker-external-dns) is a Kubernetes addon that
+This component creates a Helm deployment for [external-dns](https://github.com/kubernetes-sigs/external-dns) on a
+Kubernetes cluster. [external-dns](https://github.com/kubernetes-sigs/external-dns) is a Kubernetes addon that
 configures public DNS servers with information about exposed Kubernetes services to make them discoverable.
 ## Usage
 
@@ -33,8 +33,8 @@ components:
         enabled: true
         name: external-dns
         chart: external-dns
-        chart_repository: https://charts.bitnami.com/bitnami
-        chart_version: "6.33.0"
+        chart_repository: https://kubernetes-sigs.github.io/external-dns/
+        chart_version: "1.18.0"
         create_namespace: true
         kubernetes_namespace: external-dns
         resources:
@@ -48,13 +48,15 @@ components:
         # For example, when using blue-green deployment pattern to update EKS cluster.
         txt_prefix: ""
         # You can use `chart_values` to set any other chart options. Treat `chart_values` as the root of the doc.
-        # See documentation for latest chart version and list of chart_values: https://artifacthub.io/packages/helm/bitnami/external-dns
+        # See documentation for latest chart version and list of chart_values: https://artifacthub.io/packages/helm/external-dns/external-dns
         #
         # # For example
         # ---
         # chart_values:
-        #   aws:
-        #     batchChangeSize: 1000
+        #   provider:
+        #     name: aws
+        #   extraArgs:
+        #     - --aws-batch-change-size=1000
         chart_values: {}
         # Extra hosted zones to lookup and support by component name
         dns_components:
@@ -151,7 +153,7 @@ components:
 | <a name="input_name"></a> [name](#input\_name) | ID element. Usually the component or solution name, e.g. 'app' or 'jenkins'.<br/>This is the only ID element not also included as a `tag`.<br/>The "name" tag is set to the full `id` string. There is no tag with the value of the `name` input. | `string` | `null` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
 | <a name="input_policy"></a> [policy](#input\_policy) | Modify how DNS records are synchronized between sources and providers (options: sync, upsert-only) | `string` | `"sync"` | no |
-| <a name="input_publish_internal_services"></a> [publish\_internal\_services](#input\_publish\_internal\_services) | Allow external-dns to publish DNS records for ClusterIP services | `bool` | `true` | no |
+
 | <a name="input_rbac_enabled"></a> [rbac\_enabled](#input\_rbac\_enabled) | Service Account for pods. | `bool` | `true` | no |
 | <a name="input_regex_replace_chars"></a> [regex\_replace\_chars](#input\_regex\_replace\_chars) | Terraform regular expression (regex) string.<br/>Characters matching the regex will be removed from the ID elements.<br/>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS Region. | `string` | n/a | yes |
@@ -175,12 +177,11 @@ components:
 ## References
 
 
-- [external-dns (Artifact Hub)](https://artifacthub.io/packages/helm/bitnami/external-dns) - Helm chart for ExternalDNS by Bitnami
+- [external-dns (Artifact Hub)](https://artifacthub.io/packages/helm/external-dns/external-dns) - Helm chart for ExternalDNS by Kubernetes SIGs
 
-- [ExternalDNS (Bitnami Docker)](https://github.com/bitnami/bitnami-docker-external-dns) - ExternalDNS addon container image and docs by Bitnami
+- [ExternalDNS (GitHub)](https://github.com/kubernetes-sigs/external-dns) - ExternalDNS addon source code and documentation
 
 
 
 
 [<img src="https://cloudposse.com/logo-300x69.svg" height="32" align="right"/>](https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse-terraform-components/aws-eks-external-dns&utm_content=)
-

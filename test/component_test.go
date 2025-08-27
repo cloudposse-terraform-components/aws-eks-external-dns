@@ -2,22 +2,23 @@ package test
 
 import (
 	"context"
-	"testing"
 	"fmt"
 	"strings"
+	"testing"
 	"time"
+
 	"github.com/cloudposse/test-helpers/pkg/atmos"
-	"github.com/cloudposse/test-helpers/pkg/helm"
-	awsHelper "github.com/cloudposse/test-helpers/pkg/aws"
 	helper "github.com/cloudposse/test-helpers/pkg/atmos/component-helper"
+	awsHelper "github.com/cloudposse/test-helpers/pkg/aws"
+	"github.com/cloudposse/test-helpers/pkg/helm"
 	awsTerratest "github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
 
 	"github.com/stretchr/testify/assert"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"k8s.io/client-go/dynamic"
 )
@@ -65,15 +66,14 @@ func (s *ComponentSuite) TestBasic() {
 
 	metadata := metadataArray[0]
 
-	assert.Equal(s.T(), metadata.AppVersion, "0.14.0")
+	assert.Equal(s.T(), metadata.AppVersion, "0.18.0")
 	assert.Equal(s.T(), metadata.Chart, "external-dns")
 	assert.NotNil(s.T(), metadata.FirstDeployed)
 	assert.NotNil(s.T(), metadata.LastDeployed)
 	assert.Equal(s.T(), metadata.Name, "external-dns")
 	assert.Equal(s.T(), metadata.Namespace, namespace)
 	assert.NotNil(s.T(), metadata.Values)
-	assert.Equal(s.T(), metadata.Version, "6.33.0")
-
+	assert.Equal(s.T(), metadata.Version, "1.18.0")
 
 	config, err := awsHelper.NewK8SClientConfig(cluster)
 	assert.NoError(s.T(), err)
@@ -97,13 +97,13 @@ func (s *ComponentSuite) TestBasic() {
 			"apiVersion": "externaldns.k8s.io/v1alpha1",
 			"kind":       "DNSEndpoint",
 			"metadata": map[string]interface{}{
-				"name":	dnsEndpointName,
+				"name":      dnsEndpointName,
 				"namespace": namespace,
 			},
 			"spec": map[string]interface{}{
 				"endpoints": []interface{}{
 					map[string]interface{}{
-						"dnsName": dnsRecordHostName,
+						"dnsName":    dnsRecordHostName,
 						"recordTTL":  300,
 						"recordType": "A",
 						"targets": []interface{}{
