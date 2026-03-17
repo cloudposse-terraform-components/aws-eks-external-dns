@@ -1,11 +1,11 @@
 variable "eks" {
   type = object({
-    eks_cluster_id                   = optional(string, null)
-    eks_cluster_arn                  = optional(string, null)
-    eks_cluster_endpoint             = optional(string, null)
+    eks_cluster_id                         = optional(string, null)
+    eks_cluster_arn                        = optional(string, null)
+    eks_cluster_endpoint                   = optional(string, null)
     eks_cluster_certificate_authority_data = optional(string, null)
-    eks_cluster_identity_oidc_issuer = optional(string, null)
-    karpenter_iam_role_arn           = optional(string, null)
+    eks_cluster_identity_oidc_issuer       = optional(string, null)
+    karpenter_iam_role_arn                 = optional(string, null)
   })
   description = "EKS cluster outputs. When set, bypasses remote-state lookup of eks/cluster."
   default     = null
@@ -21,12 +21,12 @@ module "eks" {
   bypass = var.eks != null
 
   defaults = {
-    eks_cluster_id                   = try(var.eks.eks_cluster_id, null)
-    eks_cluster_arn                  = try(var.eks.eks_cluster_arn, null)
-    eks_cluster_endpoint             = try(var.eks.eks_cluster_endpoint, null)
+    eks_cluster_id                         = try(var.eks.eks_cluster_id, null)
+    eks_cluster_arn                        = try(var.eks.eks_cluster_arn, null)
+    eks_cluster_endpoint                   = try(var.eks.eks_cluster_endpoint, null)
     eks_cluster_certificate_authority_data = try(var.eks.eks_cluster_certificate_authority_data, null)
-    eks_cluster_identity_oidc_issuer = try(var.eks.eks_cluster_identity_oidc_issuer, null)
-    karpenter_iam_role_arn           = try(var.eks.karpenter_iam_role_arn, null)
+    eks_cluster_identity_oidc_issuer       = try(var.eks.eks_cluster_identity_oidc_issuer, null)
+    karpenter_iam_role_arn                 = try(var.eks.karpenter_iam_role_arn, null)
   }
 
   context = module.this.context
