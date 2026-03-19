@@ -65,7 +65,7 @@ module "dns_gbl_primary" {
 module "additional_dns_components" {
   for_each = { for obj in var.dns_components : obj.component => obj }
   source   = "cloudposse/stack-config/yaml//modules/remote-state"
-  version  = "1.8.0"
+  version  = "2.0.0"
 
   component   = each.value.component
   environment = coalesce(each.value.environment, "gbl")
