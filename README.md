@@ -131,6 +131,7 @@ components:
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.9.0, < 6.0.0 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.0.0, < 3.0.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.7.1, != 2.21.0 |
+| <a name="requirement_utils"></a> [utils](#requirement\_utils) | >= 2.0.0, < 3.0.0 |
 
 ## Providers
 
@@ -142,10 +143,10 @@ components:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_additional_dns_components"></a> [additional\_dns\_components](#module\_additional\_dns\_components) | cloudposse/stack-config/yaml//modules/remote-state | 1.8.0 |
-| <a name="module_dns_gbl_delegated"></a> [dns\_gbl\_delegated](#module\_dns\_gbl\_delegated) | cloudposse/stack-config/yaml//modules/remote-state | 1.8.0 |
-| <a name="module_dns_gbl_primary"></a> [dns\_gbl\_primary](#module\_dns\_gbl\_primary) | cloudposse/stack-config/yaml//modules/remote-state | 1.8.0 |
-| <a name="module_eks"></a> [eks](#module\_eks) | cloudposse/stack-config/yaml//modules/remote-state | 1.8.0 |
+| <a name="module_additional_dns_components"></a> [additional\_dns\_components](#module\_additional\_dns\_components) | cloudposse/stack-config/yaml//modules/remote-state | 2.0.0 |
+| <a name="module_dns_gbl_delegated"></a> [dns\_gbl\_delegated](#module\_dns\_gbl\_delegated) | cloudposse/stack-config/yaml//modules/remote-state | 2.0.0 |
+| <a name="module_dns_gbl_primary"></a> [dns\_gbl\_primary](#module\_dns\_gbl\_primary) | cloudposse/stack-config/yaml//modules/remote-state | 2.0.0 |
+| <a name="module_eks"></a> [eks](#module\_eks) | cloudposse/stack-config/yaml//modules/remote-state | 2.0.0 |
 | <a name="module_external_dns"></a> [external\_dns](#module\_external\_dns) | cloudposse/helm-release/aws | 0.10.1 |
 | <a name="module_iam_roles"></a> [iam\_roles](#module\_iam\_roles) | ../../account-map/modules/iam-roles | n/a |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.25.0 |
