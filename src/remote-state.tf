@@ -11,7 +11,7 @@ module "dns_gbl_delegated" {
   source  = "cloudposse/stack-config/yaml//modules/remote-state"
   version = "2.0.0"
 
-  component   = "dns-delegated"
+  component   = var.dns_gbl_delegated_component_name
   environment = var.dns_gbl_delegated_environment_name
 
   context = module.this.context
