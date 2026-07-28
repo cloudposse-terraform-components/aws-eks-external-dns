@@ -126,6 +126,12 @@ variable "dns_gbl_delegated_environment_name" {
   default     = "gbl"
 }
 
+variable "dns_gbl_delegated_component_name" {
+  type        = string
+  description = "The name of the component where global `dns_delegated` is provisioned"
+  default     = "dns-delegated"
+}
+
 variable "dns_gbl_primary_environment_name" {
   type        = string
   description = "The name of the environment where global `dns_primary` is provisioned"
